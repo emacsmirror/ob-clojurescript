@@ -5,11 +5,16 @@
 #+LANGUAGE: en
 #+OPTIONS: num: nil
 
-* What is this? 																												:toc:
-   - [[#isnt-planck-only-available-on-mac-os-x][Isn't =planck= only available on Mac OS X?]]
+* Contents																															:toc_1:
+ - [[#what-is-this][What is this?]]
  - [[#how-do-i-install-this][How do I install this?]]
  - [[#how-do-i-use-this][How do I use this?]]
  - [[#what-happens-if-it-breaks][What happens if it breaks?]]
+
+* What is this?
+
+An Emacs library for [[http://orgmode.org][Org mode]] that evaluates [[https://github.com/clojure/clojurescript][ClojureScript]] code blocks
+with [[http://planck-repl.org][planck]].
 
 ** Isn't =planck= only available on Mac OS X?
 
