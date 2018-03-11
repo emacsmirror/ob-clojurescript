@@ -1,47 +1,158 @@
 #+TITLE: ob-cljs
 #+AUTHOR: Larry Staton Jr.
 #+EMAIL: larry@larrystaton.com
-#+DATE: 2016 July 16
+#+DATE: 2018 March 10
 #+LANGUAGE: en
 #+OPTIONS: num: nil
 
-* Contents																															:toc_1:
- - [[#what-is-this][What is this?]]
- - [[#how-do-i-install-this][How do I install this?]]
- - [[#how-do-i-use-this][How do I use this?]]
- - [[#what-happens-if-it-breaks][What happens if it breaks?]]
+* Contents                                                   :noexport:toc_2:
+- [[#about][About]]
+- [[#installation][Installation]]
+- [[#testing][Testing]]
+  - [[#running-tests][Running Tests]]
+- [[#library-code][Library Code]]
+- [[#usage][Usage]]
+- [[#project-files][Project Files]]
+  - [[#gitignore][gitignore]]
 
-* What is this?
+* About
 
-An Emacs library for [[http://orgmode.org][Org mode]] that evaluates [[https://github.com/clojure/clojurescript][ClojureScript]] code blocks
-with [[http://planck-repl.org][planck]].
+	An Emacs library for [[http://orgmode.org][Org mode]] that evaluates [[https://github.com/clojure/clojurescript][ClojureScript]] code blocks
+	with [[https://github.com/anmonteiro/lumo][lumo]].
 
-** Isn't =planck= only available on Mac OS X?
-
-	 Yes, although Planck 2.0 [[http://planck-repl.org/download-alpha.html][will be available on Ubuntu]]. At some
-	 point, I'd like to have the option of using [[https://github.com/nasser/clojurescript-npm][node]].
-
-* How do I install this?
+* Installation
 
 	I'll figure out how to get this on MELPA, but for now, you can
 	either tangle this README then install the resulting =ob-cljs.el=
 	file or you can evaluate the code in this README file.
 
+* Testing
+
+	This library uses ~ert~ and an Org mode file named
+	[[file:test-ob-cljs.el][test-ob-cljs.el]] for testing purposes.
+
+	Each test below should have a corresponding source block in the Org
+	file.
+
+#+BEGIN_SRC emacs-lisp :tangle test-ob-cljs.el
+;;; test-ob-cljs.el
+;;
+;; This file is not part of GNU Emacs.
+;;
+;;; Code:
+(require 'ert)
+(require 'org-id)
+
+(defconst ob-cljs-test-dir
+  (expand-file-name (file-name-directory (or load-file-name buffer-file-name))))
+
+(defconst org-id-locations-file
+  (expand-file-name ".test-org-id-locations" ob-cljs-test-dir))
+
+(defun ob-cljs-test-update-id-locations ()
+  (let ((files (directory-files
+                ob-cljs-test-dir 'full
+                "^\\([^.]\\|\\.\\([^.]\\|\\..\\)\\).*\\.org$")))
+    (org-id-update-id-locations files)))
+
+(defmacro org-test-at-id (id &rest body)
+  "Run body after placing the point in the headline identified by ID."
+  (declare (indent 1))
+  `(let* ((id-location (org-id-find ,id))
+	  (id-file (car id-location))
+	  (visited-p (get-file-buffer id-file))
+	  to-be-removed)
+     (unwind-protect
+				 (save-window-excursion
+					 (save-match-data
+						 (org-id-goto ,id)
+						 (setq to-be-removed (current-buffer))
+						 (condition-case nil
+								 (progn
+									 (org-show-subtree)
+									 (org-show-block-all))
+							 (error nil))
+						 (save-restriction ,@body)))
+       (unless (or visited-p (not to-be-removed))
+				 (kill-buffer to-be-removed)))))
+(def-edebug-spec org-test-at-id (form body))
+
+(unless (featurep 'ob-cljs)
+  (signal 'missing-test-dependency "Support for ClojureScript code blocks"))
+
+(ert-deftest ob-cljs/assert ()
+  (should t))
+
+(ert-deftest ob-cljs/simple ()
+  "Simple output"
+  (if (executable-find org-babel-cljs-command)
+      (org-test-at-id "FABFDF69-1B5A-4193-8FA7-DA57125E3352"
+		      (org-babel-next-src-block 1)
+		      (should (equal '(1 4 9) (org-babel-execute-src-block))))))
+
+(ert-deftest ob-cljs/native-js ()
+	"JavaScript interop"
+	(if (executable-find org-babel-cljs-command)
+      (org-test-at-id "FABFDF69-1B5A-4193-8FA7-DA57125E3352"
+		      (org-babel-next-src-block 2)
+		      (should (string-equal "hello" (org-babel-execute-src-block))))))
+
+(defun ob-cljs-test-runall ()
+  (progn
+    (ob-cljs-test-update-id-locations)
+    (ert t)))
+
+(provide 'ob-cljs-test)
+#+END_SRC
+
+** Running Tests
+
+	 You can run the tests using Make. To run the tests execute:
+
+#+BEGIN_SRC sh
+make test
+#+END_SRC
+
+   Here's the Makefile:
+
+#+BEGIN_SRC sh :tangle Makefile
+.PHONY: test
+
+test:
+	@rm -f .test-org-id-locations
+	emacs -Q --batch -q \
+		-L . \
+		-l ob-cljs.el \
+		-l test-ob-cljs.el \
+		--eval "(progn \
+	              (setq org-confirm-babel-evaluate nil) \
+	              (org-babel-do-load-languages \
+	                'org-babel-load-languages '((emacs-lisp . t) \
+	                                            (sh . t) \
+	                                            (org . t) \
+	                                            (cljs . t))))" \
+	    -f ob-cljs-test-runall
+#+END_SRC
+
+* Library Code
+
 #+BEGIN_SRC emacs-lisp :tangle ob-cljs.el
 ;;; ob-cljs.el --- org-babel functions for ClojureScript evaluation
 
 ;; Author: Larry Staton Jr.
-;;
+;; Maintainer: Larry Staton Jr.
+;; Created: 10 March 2018
 ;; Keywords: literate programming, reproducible research
-;; Homepage: http:///orgmode.org
+;; Homepage: https://gitlab.com/statonjr/ob-cljs
+;; Version: 0.0.1
 
 ;;; Commentary:
 
-;; Support for evaluating ClojureScript code
+;; Org-babel support for evaluating ClojureScript code
 
 ;; Requirements:
 
-;; - [[http://planck-repl.org/][planck]]
+;; - [[https://github.com/anmonteiro/lumo][lumo]]
 
 ;;; Code:
 (require 'ob)
@@ -49,7 +160,10 @@ with [[http://planck-repl.org][planck]].
   (require 'cl))
 
 (defvar org-babel-tangle-lang-exts)
-(add-to-list 'org-babel-tangle-exts '("cljs" . "cljs"))
+(add-to-list 'org-babel-tangle-lang-exts '("cljs" . "cljs"))
+
+(defvar org-babel-cljs-command "lumo"
+  "The command to use to compile and run your ClojureScript code.")
 
 (defvar org-babel-default-header-args:cljs '())
 (defvar org-babel-header-args:cljs '((package . :any)))
@@ -85,14 +199,14 @@ with [[http://planck-repl.org][planck]].
 
 #+BEGIN_SRC emacs-lisp :tangle ob-cljs.el :results silent
 (defun org-babel-execute:cljs (body params)
-  "Execute a block of Clojure code with Babel."
+  "Execute a block of ClojureScript code with Babel."
   (let ((expanded (org-babel-expand-body:cljs body params))
 				result)
 		(message "expanded: %s" expanded)
 		(setq result
 					(org-babel-trim
 					 (shell-command-to-string
-						(concat "/usr/local/bin/planck -e \"" expanded "\""))))
+						(concat "/usr/local/bin/lumo -e \"" expanded "\""))))
     (org-babel-result-cond (cdr (assoc :result-params params))
 			result
       (condition-case nil (org-babel-script-escape result)
@@ -101,11 +215,9 @@ with [[http://planck-repl.org][planck]].
 
 #+BEGIN_SRC emacs-lisp :tangle ob-cljs.el
 (provide 'ob-cljs)
-
-;;; ob-cljs.el ends here
 #+END_SRC
 
-* How do I use this?
+* Usage
 
 	Create a =SRC= block and evaluate it with =C-c C-c=.
 
@@ -118,6 +230,17 @@ with [[http://planck-repl.org][planck]].
 (1 4 9)
 #+END_SRC
 
-* What happens if it breaks?
+* Project Files
 
-	Pull requests welcome.
+** gitignore
+
+#+BEGIN_SRC shell :tangle .gitignore
+/.test-org-id-locations
+dist/
+#+END_SRC
+
+* Next Steps                                                       :noexport:
+
+** TODO Make path to lumo configurable
+** TODO Remove logging
+** TODO Add to MELPA
