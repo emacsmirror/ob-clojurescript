@@ -29,7 +29,7 @@
 (defvar org-babel-default-header-args:cljs '())
 (defvar org-babel-header-args:cljs '((package . :any)))
 
-(defun escape-quotes (str-val)
+(defun ob-cljs-escape-quotes (str-val)
 	(replace-regexp-in-string "\"" "\\\"" str-val 'FIXEDCASE 'LITERAL))
 
 (defun org-babel-expand-body:cljs (body params)
@@ -39,7 +39,7 @@
 				 (result-params (cdr (assoc :result-params params)))
 				 (print-level nil)
 				 (print-length nil)
-				 (body (escape-quotes
+				 (body (ob-cljs-escape-quotes
 								(org-babel-trim
 								 (if (> (length vars) 0)
 										 (concat "(let ["
@@ -49,7 +49,6 @@
 															vars "\n      ")
 														 "]\n" body ")")
 									 body)))))
-		(message "escaped body: %s" body)
     (if (or (member "code" result-params)
 						(member "pp" result-params))
 				(format "(print (do %s))" body)
@@ -59,7 +58,6 @@
   "Execute a block of ClojureScript code with Babel."
   (let ((expanded (org-babel-expand-body:cljs body params))
 				result)
-		(message "expanded: %s" expanded)
 		(setq result
 					(org-babel-trim
 					 (shell-command-to-string
@@ -70,3 +68,4 @@
 	(error result)))))
 
 (provide 'ob-cljs)
+;;; ob-cljs.el ends here
