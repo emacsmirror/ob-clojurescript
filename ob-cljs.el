@@ -9,7 +9,7 @@
 
 ;;; Commentary:
 
-;; Org-babel support for evaluating ClojureScript code
+;; Org-babel support for evaluating ClojureScript code.
 
 ;; Requirements:
 
@@ -30,11 +30,11 @@
 (defvar org-babel-header-args:cljs '((package . :any)))
 
 (defun ob-cljs-escape-quotes (str-val)
+	"Escape quotes for STR-VAL so that Lumo can understand"
 	(replace-regexp-in-string "\"" "\\\"" str-val 'FIXEDCASE 'LITERAL))
 
 (defun org-babel-expand-body:cljs (body params)
 	"Expand BODY according to PARAMS, return the expanded body."
-	(message "raw body: %s" body)
   (let* ((vars (mapcar #'cdr (org-babel-get-header params :var)))
 				 (result-params (cdr (assoc :result-params params)))
 				 (print-level nil)

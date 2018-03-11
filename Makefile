@@ -5,7 +5,7 @@ test:
 	emacs -Q --batch -q \
 		-L . \
 		-l ob-cljs.el \
-		-l test-ob-cljs.el \
+		-l ob-cljs-test.el \
 		--eval "(progn \
 	              (setq org-confirm-babel-evaluate nil) \
 	              (org-babel-do-load-languages \

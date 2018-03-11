@@ -29,13 +29,13 @@
 * Testing
 
 	This library uses ~ert~ and an Org mode file named
-	[[file:test-ob-cljs.el][test-ob-cljs.el]] for testing purposes.
+	[[file:ob-cljs-test.el][ob-cljs-test.el]] for testing purposes.
 
 	Each test below should have a corresponding source block in the Org
 	file.
 
-#+BEGIN_SRC emacs-lisp :tangle test-ob-cljs.el
-;;; test-ob-cljs.el
+#+BEGIN_SRC emacs-lisp :tangle ob-cljs-test.el
+;;; ob-cljs-test.el
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -123,7 +123,7 @@ test:
 	emacs -Q --batch -q \
 		-L . \
 		-l ob-cljs.el \
-		-l test-ob-cljs.el \
+		-l ob-cljs-test.el \
 		--eval "(progn \
 	              (setq org-confirm-babel-evaluate nil) \
 	              (org-babel-do-load-languages \
@@ -148,7 +148,7 @@ test:
 
 ;;; Commentary:
 
-;; Org-babel support for evaluating ClojureScript code
+;; Org-babel support for evaluating ClojureScript code.
 
 ;; Requirements:
 
@@ -171,11 +171,11 @@ test:
 
 #+BEGIN_SRC emacs-lisp :tangle ob-cljs.el :results silent
 (defun ob-cljs-escape-quotes (str-val)
+	"Escape quotes for STR-VAL so that Lumo can understand"
 	(replace-regexp-in-string "\"" "\\\"" str-val 'FIXEDCASE 'LITERAL))
 
 (defun org-babel-expand-body:cljs (body params)
 	"Expand BODY according to PARAMS, return the expanded body."
-	(message "raw body: %s" body)
   (let* ((vars (mapcar #'cdr (org-babel-get-header params :var)))
 				 (result-params (cdr (assoc :result-params params)))
 				 (print-level nil)
@@ -241,5 +241,4 @@ dist/
 * Next Steps                                                       :noexport:
 
 ** TODO Make path to lumo configurable
-** TODO Remove logging
 ** TODO Add to MELPA
