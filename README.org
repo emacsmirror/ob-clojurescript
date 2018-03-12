@@ -18,6 +18,8 @@
 
 * About
 
+	#+HTML: <img src="https://img.shields.io/badge/license-GPL_3-green.svg" alt="GPL 3 License" />
+
 	An Emacs library for [[http://orgmode.org][Org mode]] that evaluates [[https://github.com/clojure/clojurescript][ClojureScript]] code blocks
 	with [[https://github.com/anmonteiro/lumo][Lumo]].
 
@@ -276,3 +278,5 @@ dist/
 ** TODO Make backend configurable with clj?
 ** TODO Add screenshot/movie
 ** TODO More tests
+** TODO Run tests on GitLab CI
+** TODO Add MELPA badges
