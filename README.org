@@ -7,6 +7,7 @@
 
 * Contents                                                   :noexport:toc_2:
 - [[#about][About]]
+- [[#requirements][Requirements]]
 - [[#installation][Installation]]
 - [[#testing][Testing]]
   - [[#running-tests][Running Tests]]
@@ -18,7 +19,12 @@
 * About
 
 	An Emacs library for [[http://orgmode.org][Org mode]] that evaluates [[https://github.com/clojure/clojurescript][ClojureScript]] code blocks
-	with [[https://github.com/anmonteiro/lumo][lumo]].
+	with [[https://github.com/anmonteiro/lumo][Lumo]].
+
+* Requirements
+
+	- Org version 9.0 or higher
+	- Lumo
 
 * Installation
 
@@ -115,6 +121,7 @@ make test
 
    Here's the Makefile:
 
+#+NAME: Makefile
 #+BEGIN_SRC sh :tangle Makefile
 .PHONY: test
 
@@ -136,15 +143,16 @@ test:
 
 * Library Code
 
+** TODO Better notes and more commentary                           :noexport:
+
 #+BEGIN_SRC emacs-lisp :tangle ob-cljs.el
-;;; ob-cljs.el --- org-babel functions for ClojureScript evaluation
+;;; ob-cljs.el --- org-babel functions for ClojureScript evaluation -*- lexical-binding: t; -*-
 
 ;; Author: Larry Staton Jr.
 ;; Maintainer: Larry Staton Jr.
 ;; Created: 10 March 2018
 ;; Keywords: literate programming, reproducible research
 ;; Homepage: https://gitlab.com/statonjr/ob-cljs
-;; Version: 0.0.1
 
 ;;; Commentary:
 
@@ -153,11 +161,10 @@ test:
 ;; Requirements:
 
 ;; - [[https://github.com/anmonteiro/lumo][lumo]]
+;; - clojurescript-mode
 
 ;;; Code:
 (require 'ob)
-(eval-when-compile
-  (require 'cl))
 
 (defvar org-babel-tangle-lang-exts)
 (add-to-list 'org-babel-tangle-lang-exts '("cljs" . "cljs"))
@@ -176,24 +183,23 @@ test:
 
 (defun org-babel-expand-body:cljs (body params)
 	"Expand BODY according to PARAMS, return the expanded body."
-  (let* ((vars (mapcar #'cdr (org-babel-get-header params :var)))
-				 (result-params (cdr (assoc :result-params params)))
-				 (print-level nil)
-				 (print-length nil)
+	(let* ((vars (org-babel--get-vars params))
+				 (result-params (cdr (assq :result-params params)))
+				 (print-level nil) (print-length nil)
 				 (body (ob-cljs-escape-quotes
-								(org-babel-trim
-								 (if (> (length vars) 0)
-										 (concat "(let ["
-														 (mapconcat
-															(lambda (var)
-																(format "%S (quote %S)" (car var) (cdr var)))
-															vars "\n      ")
-														 "]\n" body ")")
-									 body)))))
-    (if (or (member "code" result-params)
+								(org-trim
+								 (if (null vars)
+										 (org-trim body)
+									 (concat "(let ["
+													 (mapconcat
+														(lambda (var)
+															(format "%S (quote %S)" (car var) (cdr var)))
+														vars "\n      ")
+													 "]\n" body ")"))))))
+		(if (or (member "code" result-params)
 						(member "pp" result-params))
 				(format "(print (do %s))" body)
-      body)))
+			body)))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle ob-cljs.el :results silent
@@ -208,7 +214,7 @@ test:
     (org-babel-result-cond (cdr (assoc :result-params params))
 			result
       (condition-case nil (org-babel-script-escape result)
-	(error result)))))
+				(error result)))))
 #+END_SRC
 
 #+BEGIN_SRC emacs-lisp :tangle ob-cljs.el
@@ -226,7 +232,7 @@ test:
 
 #+RESULTS:
 #+BEGIN_SRC cljs
-(1 4 9)
+(4 16 36)
 #+END_SRC
 
 * Project Files
@@ -241,4 +247,7 @@ dist/
 * Next Steps                                                       :noexport:
 
 ** TODO Make path to lumo configurable
-** TODO Add to MELPA
+** TODO Make backend configurable with planck
+** TODO Make backend configurable with clj?
+** TODO Add screenshot/movie
+** TODO More tests

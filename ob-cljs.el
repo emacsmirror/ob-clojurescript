@@ -1,11 +1,10 @@
-;;; ob-cljs.el --- org-babel functions for ClojureScript evaluation
+;;; ob-cljs.el --- org-babel functions for ClojureScript evaluation -*- lexical-binding: t; -*-
 
 ;; Author: Larry Staton Jr.
 ;; Maintainer: Larry Staton Jr.
 ;; Created: 10 March 2018
 ;; Keywords: literate programming, reproducible research
 ;; Homepage: https://gitlab.com/statonjr/ob-cljs
-;; Version: 0.0.1
 
 ;;; Commentary:
 
@@ -14,11 +13,10 @@
 ;; Requirements:
 
 ;; - [[https://github.com/anmonteiro/lumo][lumo]]
+;; - clojurescript-mode
 
 ;;; Code:
 (require 'ob)
-(eval-when-compile
-  (require 'cl))
 
 (defvar org-babel-tangle-lang-exts)
 (add-to-list 'org-babel-tangle-lang-exts '("cljs" . "cljs"))
@@ -35,24 +33,23 @@
 
 (defun org-babel-expand-body:cljs (body params)
 	"Expand BODY according to PARAMS, return the expanded body."
-  (let* ((vars (mapcar #'cdr (org-babel-get-header params :var)))
-				 (result-params (cdr (assoc :result-params params)))
-				 (print-level nil)
-				 (print-length nil)
+	(let* ((vars (org-babel--get-vars params))
+				 (result-params (cdr (assq :result-params params)))
+				 (print-level nil) (print-length nil)
 				 (body (ob-cljs-escape-quotes
-								(org-babel-trim
-								 (if (> (length vars) 0)
-										 (concat "(let ["
-														 (mapconcat
-															(lambda (var)
-																(format "%S (quote %S)" (car var) (cdr var)))
-															vars "\n      ")
-														 "]\n" body ")")
-									 body)))))
-    (if (or (member "code" result-params)
+								(org-trim
+								 (if (null vars)
+										 (org-trim body)
+									 (concat "(let ["
+													 (mapconcat
+														(lambda (var)
+															(format "%S (quote %S)" (car var) (cdr var)))
+														vars "\n      ")
+													 "]\n" body ")"))))))
+		(if (or (member "code" result-params)
 						(member "pp" result-params))
 				(format "(print (do %s))" body)
-      body)))
+			body)))
 
 (defun org-babel-execute:cljs (body params)
   "Execute a block of ClojureScript code with Babel."
@@ -65,7 +62,7 @@
     (org-babel-result-cond (cdr (assoc :result-params params))
 			result
       (condition-case nil (org-babel-script-escape result)
-	(error result)))))
+				(error result)))))
 
 (provide 'ob-cljs)
 ;;; ob-cljs.el ends here
