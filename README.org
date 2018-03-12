@@ -271,12 +271,12 @@ test:
 dist/
 #+END_SRC
 
-* Next Steps                                                       :noexport:
+* TODO Next Steps [0/7]                                            :noexport:
 
-** TODO Make path to lumo configurable
-** TODO Make backend configurable with planck
-** TODO Make backend configurable with clj?
-** TODO Add screenshot/movie
-** TODO More tests
-** TODO Run tests on GitLab CI
-** TODO Add MELPA badges
+ - [ ] Make backend configurable with planck
+ - [ ] Make backend configurable with clj?
+ - [ ] Make path to backend configurable
+ - [ ] Add screenshot/movie
+ - [ ] More tests
+ - [ ] Run tests on GitLab CI
+ - [ ] Add MELPA badges
