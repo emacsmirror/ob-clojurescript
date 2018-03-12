@@ -1,4 +1,4 @@
-;;; ob-cljs-test.el
+;;; ob-clojurescript-test.el
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -6,15 +6,15 @@
 (require 'ert)
 (require 'org-id)
 
-(defconst ob-cljs-test-dir
+(defconst ob-clojurescript-test-dir
   (expand-file-name (file-name-directory (or load-file-name buffer-file-name))))
 
 (defconst org-id-locations-file
-  (expand-file-name ".test-org-id-locations" ob-cljs-test-dir))
+  (expand-file-name ".test-org-id-locations" ob-clojurescript-test-dir))
 
-(defun ob-cljs-test-update-id-locations ()
+(defun ob-clojurescript-test-update-id-locations ()
   (let ((files (directory-files
-                ob-cljs-test-dir 'full
+                ob-clojurescript-test-dir 'full
                 "^\\([^.]\\|\\.\\([^.]\\|\\..\\)\\).*\\.org$")))
     (org-id-update-id-locations files)))
 
@@ -40,29 +40,29 @@
 				 (kill-buffer to-be-removed)))))
 (def-edebug-spec org-test-at-id (form body))
 
-(unless (featurep 'ob-cljs)
+(unless (featurep 'ob-clojurescript)
   (signal 'missing-test-dependency "Support for ClojureScript code blocks"))
 
-(ert-deftest ob-cljs/assert ()
+(ert-deftest ob-clojurescript/assert ()
   (should t))
 
-(ert-deftest ob-cljs/simple ()
+(ert-deftest ob-clojurescript/simple ()
   "Simple output"
-  (if (executable-find org-babel-cljs-command)
+  (if (executable-find org-babel-clojurescript-command)
       (org-test-at-id "FABFDF69-1B5A-4193-8FA7-DA57125E3352"
 		      (org-babel-next-src-block 1)
 		      (should (equal '(1 4 9) (org-babel-execute-src-block))))))
 
-(ert-deftest ob-cljs/native-js ()
+(ert-deftest ob-clojurescript/native-js ()
 	"JavaScript interop"
-	(if (executable-find org-babel-cljs-command)
+	(if (executable-find org-babel-clojurescript-command)
       (org-test-at-id "FABFDF69-1B5A-4193-8FA7-DA57125E3352"
 		      (org-babel-next-src-block 2)
 		      (should (string-equal "hello" (org-babel-execute-src-block))))))
 
-(defun ob-cljs-test-runall ()
+(defun ob-clojurescript-test-runall ()
   (progn
-    (ob-cljs-test-update-id-locations)
+    (ob-clojurescript-test-update-id-locations)
     (ert t)))
 
-(provide 'ob-cljs-test)
+(provide 'ob-clojurescript-test)

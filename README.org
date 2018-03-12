@@ -1,4 +1,4 @@
-#+TITLE: ob-cljs
+#+TITLE: ob-clojurescript
 #+AUTHOR: Larry Staton Jr.
 #+EMAIL: larry@larrystaton.com
 #+DATE: 2018 March 10
@@ -28,20 +28,18 @@
 
 * Installation
 
-	I'll figure out how to get this on MELPA, but for now, you can
-	either tangle this README then install the resulting =ob-cljs.el=
-	file or you can evaluate the code in this README file.
+	MELPA Instructions
 
 * Testing
 
 	This library uses ~ert~ and an Org mode file named
-	[[file:ob-cljs-test.org][ob-cljs-test.org]] for testing purposes.
+	[[file:ob-clojurescript-test.org][ob-clojurescript-test.org]] for testing purposes.
 
 	Each test below should have a corresponding source block in the Org
 	file.
 
-#+BEGIN_SRC emacs-lisp :tangle ob-cljs-test.el
-;;; ob-cljs-test.el
+#+BEGIN_SRC emacs-lisp :tangle ob-clojurescript-test.el
+;;; ob-clojurescript-test.el
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -49,15 +47,15 @@
 (require 'ert)
 (require 'org-id)
 
-(defconst ob-cljs-test-dir
+(defconst ob-clojurescript-test-dir
   (expand-file-name (file-name-directory (or load-file-name buffer-file-name))))
 
 (defconst org-id-locations-file
-  (expand-file-name ".test-org-id-locations" ob-cljs-test-dir))
+  (expand-file-name ".test-org-id-locations" ob-clojurescript-test-dir))
 
-(defun ob-cljs-test-update-id-locations ()
+(defun ob-clojurescript-test-update-id-locations ()
   (let ((files (directory-files
-                ob-cljs-test-dir 'full
+                ob-clojurescript-test-dir 'full
                 "^\\([^.]\\|\\.\\([^.]\\|\\..\\)\\).*\\.org$")))
     (org-id-update-id-locations files)))
 
@@ -83,32 +81,32 @@
 				 (kill-buffer to-be-removed)))))
 (def-edebug-spec org-test-at-id (form body))
 
-(unless (featurep 'ob-cljs)
+(unless (featurep 'ob-clojurescript)
   (signal 'missing-test-dependency "Support for ClojureScript code blocks"))
 
-(ert-deftest ob-cljs/assert ()
+(ert-deftest ob-clojurescript/assert ()
   (should t))
 
-(ert-deftest ob-cljs/simple ()
+(ert-deftest ob-clojurescript/simple ()
   "Simple output"
-  (if (executable-find org-babel-cljs-command)
+  (if (executable-find org-babel-clojurescript-command)
       (org-test-at-id "FABFDF69-1B5A-4193-8FA7-DA57125E3352"
 		      (org-babel-next-src-block 1)
 		      (should (equal '(1 4 9) (org-babel-execute-src-block))))))
 
-(ert-deftest ob-cljs/native-js ()
+(ert-deftest ob-clojurescript/native-js ()
 	"JavaScript interop"
-	(if (executable-find org-babel-cljs-command)
+	(if (executable-find org-babel-clojurescript-command)
       (org-test-at-id "FABFDF69-1B5A-4193-8FA7-DA57125E3352"
 		      (org-babel-next-src-block 2)
 		      (should (string-equal "hello" (org-babel-execute-src-block))))))
 
-(defun ob-cljs-test-runall ()
+(defun ob-clojurescript-test-runall ()
   (progn
-    (ob-cljs-test-update-id-locations)
+    (ob-clojurescript-test-update-id-locations)
     (ert t)))
 
-(provide 'ob-cljs-test)
+(provide 'ob-clojurescript-test)
 #+END_SRC
 
 ** Running Tests
@@ -129,30 +127,30 @@ test:
 	@rm -f .test-org-id-locations
 	emacs -Q --batch -q \
 		-L . \
-		-l ob-cljs.el \
-		-l ob-cljs-test.el \
+		-l ob-clojurescript.el \
+		-l ob-clojurescript-test.el \
 		--eval "(progn \
 	              (setq org-confirm-babel-evaluate nil) \
 	              (org-babel-do-load-languages \
 	                'org-babel-load-languages '((emacs-lisp . t) \
 	                                            (sh . t) \
 	                                            (org . t) \
-	                                            (cljs . t))))" \
-	    -f ob-cljs-test-runall
+	                                            (clojurescript . t))))" \
+	    -f ob-clojurescript-test-runall
 #+END_SRC
 
 * Library Code
 
 ** TODO Better notes and more commentary                           :noexport:
 
-#+BEGIN_SRC emacs-lisp :tangle ob-cljs.el
-;;; ob-cljs.el --- org-babel functions for ClojureScript evaluation -*- lexical-binding: t; -*-
+#+BEGIN_SRC emacs-lisp :tangle ob-clojurescript.el
+;;; ob-clojurescript.el --- org-babel functions for ClojureScript evaluation -*- lexical-binding: t; -*-
 
 ;; Author: Larry Staton Jr.
 ;; Maintainer: Larry Staton Jr.
 ;; Created: 10 March 2018
 ;; Keywords: literate programming, reproducible research
-;; Homepage: https://gitlab.com/statonjr/ob-cljs
+;; Homepage: https://gitlab.com/statonjr/ob-clojurescript
 
 ;;; Commentary:
 
@@ -167,26 +165,26 @@ test:
 (require 'ob)
 
 (defvar org-babel-tangle-lang-exts)
-(add-to-list 'org-babel-tangle-lang-exts '("cljs" . "cljs"))
+(add-to-list 'org-babel-tangle-lang-exts '("clojurescript" . "cljs"))
 
-(defvar org-babel-cljs-command "lumo"
+(defvar org-babel-clojurescript-command "lumo"
   "The command to use to compile and run your ClojureScript code.")
 
-(defvar org-babel-default-header-args:cljs '())
-(defvar org-babel-header-args:cljs '((package . :any)))
+(defvar org-babel-default-header-args:clojurescript '())
+(defvar org-babel-header-args:clojurescript '((package . :any)))
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp :tangle ob-cljs.el :results silent
-(defun ob-cljs-escape-quotes (str-val)
-	"Escape quotes for STR-VAL so that Lumo can understand"
+#+BEGIN_SRC emacs-lisp :tangle ob-clojurescript.el :results silent
+(defun ob-clojurescript-escape-quotes (str-val)
+	"Escape quotes for STR-VAL so that Lumo can understand."
 	(replace-regexp-in-string "\"" "\\\"" str-val 'FIXEDCASE 'LITERAL))
 
-(defun org-babel-expand-body:cljs (body params)
+(defun org-babel-expand-body:clojurescript (body params)
 	"Expand BODY according to PARAMS, return the expanded body."
 	(let* ((vars (org-babel--get-vars params))
 				 (result-params (cdr (assq :result-params params)))
 				 (print-level nil) (print-length nil)
-				 (body (ob-cljs-escape-quotes
+				 (body (ob-clojurescript-escape-quotes
 								(org-trim
 								 (if (null vars)
 										 (org-trim body)
@@ -202,10 +200,10 @@ test:
 			body)))
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp :tangle ob-cljs.el :results silent
-(defun org-babel-execute:cljs (body params)
-  "Execute a block of ClojureScript code with Babel."
-  (let ((expanded (org-babel-expand-body:cljs body params))
+#+BEGIN_SRC emacs-lisp :tangle ob-clojurescript.el :results silent
+(defun org-babel-execute:clojurescript (body params)
+  "Execute a block of ClojureScript code in BODY with Babel using PARAMS."
+  (let ((expanded (org-babel-expand-body:clojurescript body params))
 				result)
 		(setq result
 					(org-babel-trim
@@ -217,21 +215,21 @@ test:
 				(error result)))))
 #+END_SRC
 
-#+BEGIN_SRC emacs-lisp :tangle ob-cljs.el
-(provide 'ob-cljs)
-;;; ob-cljs.el ends here
+#+BEGIN_SRC emacs-lisp :tangle ob-clojurescript.el
+(provide 'ob-clojurescript)
+;;; ob-clojurescript.el ends here
 #+END_SRC
 
 * Usage
 
 	Create a =SRC= block and evaluate it with =C-c C-c=.
 
-#+BEGIN_SRC cljs :results value code
+#+BEGIN_SRC clojurescript :results value code
 (map (fn [x] (* x x)) [2 4 6])
 #+END_SRC
 
 #+RESULTS:
-#+BEGIN_SRC cljs
+#+BEGIN_SRC clojurescript
 (4 16 36)
 #+END_SRC
 

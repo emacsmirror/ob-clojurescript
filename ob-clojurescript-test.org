@@ -1,0 +1,25 @@
+#+OPTIONS: ^:nil
+
+* Simple Tests
+	:PROPERTIES:
+	:ID:       FABFDF69-1B5A-4193-8FA7-DA57125E3352
+	:END:
+#+SOURCE: simple
+#+BEGIN_SRC clojurescript :results silent
+(map (fn [x] (* x x)) [1 2 3])
+#+END_SRC
+
+#+SOURCE: native-js
+#+BEGIN_SRC clojurescript :results silent
+(.log js/console "hello")
+#+END_SRC
+
+#+SOURCE: functions
+#+BEGIN_SRC clojurescript :results silent
+(defn greeting
+  "Greet person with NAME"
+  [name]
+  (println (str "Hello, " name)))
+
+(greeting "Rich")
+#+END_SRC

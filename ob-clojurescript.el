@@ -1,10 +1,10 @@
-;;; ob-cljs.el --- org-babel functions for ClojureScript evaluation -*- lexical-binding: t; -*-
+;;; ob-clojurescript.el --- org-babel functions for ClojureScript evaluation -*- lexical-binding: t; -*-
 
 ;; Author: Larry Staton Jr.
 ;; Maintainer: Larry Staton Jr.
 ;; Created: 10 March 2018
 ;; Keywords: literate programming, reproducible research
-;; Homepage: https://gitlab.com/statonjr/ob-cljs
+;; Homepage: https://gitlab.com/statonjr/ob-clojurescript
 
 ;;; Commentary:
 
@@ -19,24 +19,24 @@
 (require 'ob)
 
 (defvar org-babel-tangle-lang-exts)
-(add-to-list 'org-babel-tangle-lang-exts '("cljs" . "cljs"))
+(add-to-list 'org-babel-tangle-lang-exts '("clojurescript" . "cljs"))
 
-(defvar org-babel-cljs-command "lumo"
+(defvar org-babel-clojurescript-command "lumo"
   "The command to use to compile and run your ClojureScript code.")
 
-(defvar org-babel-default-header-args:cljs '())
-(defvar org-babel-header-args:cljs '((package . :any)))
+(defvar org-babel-default-header-args:clojurescript '())
+(defvar org-babel-header-args:clojurescript '((package . :any)))
 
-(defun ob-cljs-escape-quotes (str-val)
-	"Escape quotes for STR-VAL so that Lumo can understand"
+(defun ob-clojurescript-escape-quotes (str-val)
+	"Escape quotes for STR-VAL so that Lumo can understand."
 	(replace-regexp-in-string "\"" "\\\"" str-val 'FIXEDCASE 'LITERAL))
 
-(defun org-babel-expand-body:cljs (body params)
+(defun org-babel-expand-body:clojurescript (body params)
 	"Expand BODY according to PARAMS, return the expanded body."
 	(let* ((vars (org-babel--get-vars params))
 				 (result-params (cdr (assq :result-params params)))
 				 (print-level nil) (print-length nil)
-				 (body (ob-cljs-escape-quotes
+				 (body (ob-clojurescript-escape-quotes
 								(org-trim
 								 (if (null vars)
 										 (org-trim body)
@@ -51,9 +51,9 @@
 				(format "(print (do %s))" body)
 			body)))
 
-(defun org-babel-execute:cljs (body params)
-  "Execute a block of ClojureScript code with Babel."
-  (let ((expanded (org-babel-expand-body:cljs body params))
+(defun org-babel-execute:clojurescript (body params)
+  "Execute a block of ClojureScript code in BODY with Babel using PARAMS."
+  (let ((expanded (org-babel-expand-body:clojurescript body params))
 				result)
 		(setq result
 					(org-babel-trim
@@ -64,5 +64,5 @@
       (condition-case nil (org-babel-script-escape result)
 				(error result)))))
 
-(provide 'ob-cljs)
-;;; ob-cljs.el ends here
+(provide 'ob-clojurescript)
+;;; ob-clojurescript.el ends here
