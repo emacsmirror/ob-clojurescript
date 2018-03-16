@@ -1,0 +1,12 @@
+image: debian:stretch
+
+before_script:
+  - apt update -qq
+
+stages:
+  - test
+
+test:
+  stage: test
+  script:
+    - make test

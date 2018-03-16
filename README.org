@@ -7,6 +7,7 @@
 
 * Contents                                                   :noexport:toc_2:
 - [[#about][About]]
+  - [[#screen-capture][Screen Capture]]
 - [[#requirements][Requirements]]
 - [[#installation][Installation]]
 - [[#testing][Testing]]
@@ -15,6 +16,7 @@
 - [[#usage][Usage]]
 - [[#project-files][Project Files]]
   - [[#gitignore][gitignore]]
+  - [[#gitlab-ci][GitLab CI]]
 
 * About
 
@@ -22,6 +24,12 @@
 
 	An Emacs library for [[http://orgmode.org][Org mode]] that evaluates [[https://github.com/clojure/clojurescript][ClojureScript]] code blocks
 	with [[https://github.com/anmonteiro/lumo][Lumo]].
+
+** Screen Capture
+
+	 Here's a screen capture showing ~ob-clojurescript~ in action.
+
+#+html: <video src="media/ob-clojurescript.mp4" controls></video>
 
 * Requirements
 
@@ -150,7 +158,6 @@ test:
 
 * Library Code
 
-** TODO Better notes and more commentary                           :noexport:
 
 #+BEGIN_SRC emacs-lisp :tangle ob-clojurescript.el
 ;;; ob-clojurescript.el --- org-babel functions for ClojureScript evaluation -*- lexical-binding: t; -*-
@@ -267,16 +274,38 @@ test:
 ** gitignore
 
 #+BEGIN_SRC shell :tangle .gitignore
+.DS_Store
 /.test-org-id-locations
 dist/
 #+END_SRC
 
-* TODO Next Steps [0/7]                                            :noexport:
+** GitLab CI
 
+	 Tests for this project run at GitLab.
+
+#+BEGIN_SRC yaml :tangle .gitlab-ci.yaml
+image: debian:stretch
+
+before_script:
+  - apt update -qq
+
+stages:
+  - test
+
+test:
+  stage: test
+  script:
+    - make test
+#+END_SRC
+
+* TODO Next Steps [2/9]                                            :noexport:
+
+ - [ ] Better commentary in code
+ - [ ] More explanation of what's going on
  - [ ] Make backend configurable with planck
  - [ ] Make backend configurable with clj?
  - [ ] Make path to backend configurable
- - [ ] Add screenshot/movie
+ - [X] Add screenshot/movie
  - [ ] More tests
- - [ ] Run tests on GitLab CI
+ - [X] Run tests on GitLab CI
  - [ ] Add MELPA badges
