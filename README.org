@@ -29,7 +29,11 @@
 
 	 Here's a screen capture showing ~ob-clojurescript~ in action.
 
-#+html: <video src="media/ob-clojurescript.mp4" controls></video>
+#+ATTR_HTML: :controls controls
+#+BEGIN_video
+#+HTML: <source src="media/ob-clojurescript.mp4">
+Your browser does not support the video tag.
+#+END_video
 
 * Requirements
 
