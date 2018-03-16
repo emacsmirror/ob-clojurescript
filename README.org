@@ -29,7 +29,7 @@
 
 	 Here's a screen capture showing ~ob-clojurescript~ in action.
 
-#+html: <p align="center"><video src="media/ob-clojurescriot.mp4"></video></p>
+*** TODO Add link to YouTube video
 
 * Requirements
 
