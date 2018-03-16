@@ -3,7 +3,7 @@
 #+EMAIL: larry@larrystaton.com
 #+DATE: 2018 March 10
 #+LANGUAGE: en
-#+OPTIONS: num: nil html5-fancy: t
+#+OPTIONS: num: nil
 
 * Contents                                                   :noexport:toc_2:
 - [[#about][About]]
@@ -29,11 +29,7 @@
 
 	 Here's a screen capture showing ~ob-clojurescript~ in action.
 
-#+ATTR_HTML: :controls controls
-#+BEGIN_video
-#+HTML: <source src="media/ob-clojurescript.mp4">
-Your browser does not support the video tag.
-#+END_video
+#+html: <p align="center"><video src="media/ob-clojurescriot.mp4"></video></p>
 
 * Requirements
 
