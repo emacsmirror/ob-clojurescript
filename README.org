@@ -3,7 +3,7 @@
 #+EMAIL: larry@larrystaton.com
 #+DATE: 2018 March 10
 #+LANGUAGE: en
-#+OPTIONS: num: nil
+#+OPTIONS: num: nil html5-fancy: t
 
 * Contents                                                   :noexport:toc_2:
 - [[#about][About]]
