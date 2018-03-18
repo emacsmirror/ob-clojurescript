@@ -253,6 +253,10 @@ test:
 
 #+BEGIN_SRC emacs-lisp :tangle ob-clojurescript.el
 (provide 'ob-clojurescript)
+
+;; Local Variables:
+;; indent-tabs-mode: nil
+;; End:
 ;;; ob-clojurescript.el ends here
 #+END_SRC
 
